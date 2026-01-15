@@ -2,6 +2,11 @@
 
 Projeto de automação desenvolvido em Python para realizar o cadastro automático de produtos em um sistema web, a partir de uma base de dados em CSV.
 
+## Demonstração
+
+![Demonstração da automação](assets/demo.gif)
+
+
 ## Funcionalidades
 - Abertura automática do navegador
 - Login automatizado no sistema
@@ -34,3 +39,4 @@ python main.py
 - Projeto com foco educacional e demonstrativo
 
 ## Desenvolvido por Matheus Henrique
+
