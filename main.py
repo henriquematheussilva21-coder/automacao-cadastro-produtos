@@ -1,75 +1,77 @@
 import pyautogui
 import time
+import pandas as pd
+
 pyautogui.PAUSE = 0.5
 
+link = "https://dlp.hashtagtreinamentos.com/python/intensivao/login"
 email = "seu_email@gmail.com"
 senha = "sua_senha"
-link = "https://dlp.hashtagtreinamentos.com/python/intensivao/login"
+csv_path = "produtos.csv"
 
-# Passo 1: Abrir o navegador e entrar no Sistema da Empresa
-pyautogui.press("win")
-pyautogui.write("opera")
-pyautogui.press("enter")
+# Função 1: Abrir o navegador e acessar o Sistema
+def abrir_sistema():
+    pyautogui.press("win")
+    pyautogui.write("chrome")
+    pyautogui.press("enter")
+    time.sleep(2)
 
-pyautogui.write(link)
-pyautogui.press("enter")
-time.sleep(5)  # fazer uma pausa maior para o site carregar
+    pyautogui.write(link)
+    pyautogui.press("enter")
+    time.sleep(5)
 
-# Passo 2 : Fazer Login no Sistema
-pyautogui.click(x=701, y=494) # clicar no campo de email 
-pyautogui.write(email)
-pyautogui.press("tab") # passar para o próximo campo
-pyautogui.write(senha)
-pyautogui.press("tab") # passar para o botão
-pyautogui.press("enter")
-time.sleep(3)
-
-# Passo 3: Abrir a base de dados (importar o arquivo)
-import pandas
-
-tabela = pandas.read_csv("produtos.csv")
-print(tabela)
-
-for linha in tabela.index:
-  # Passo 4: Cadastrar 1 produto
-  # codigo
-  pyautogui.click(x=628, y=348) # clicar no campo do código
-  codigo = str(tabela.loc[linha, "codigo"])
-  pyautogui.write(codigo)
+# Função 2 : Fazer Login no Sistema
+def fazer_login():
+  pyautogui.click(x=701, y=494) # clicar no campo de email 
+  pyautogui.write(email)
   pyautogui.press("tab") # passar para o próximo campo
 
-  # marca
-  marca = str(tabela.loc[linha, "marca"])
-  pyautogui.write(marca)
-  pyautogui.press("tab") # passar para o próximo campo
-
-  # tipo 
-  tipo = str(tabela.loc[linha, "tipo"])
-  pyautogui.write(tipo)
-  pyautogui.press("tab") # passar para o próximo campo
-
-  # categoria
-  categoria = str(tabela.loc[linha, "categoria"])
-  pyautogui.write(categoria)
-  pyautogui.press("tab") # passar para o próximo campo
-
-  # preco_unitario
-  preco = str(tabela.loc[linha, "preco_unitario"])
-  pyautogui.write(preco)
-  pyautogui.press("tab") # passar para o próximo campo
-
-  # custo
-  custo = str(tabela.loc[linha, "custo"])
-  pyautogui.write(custo)
-  pyautogui.press("tab") # passar para o próximo campo
-
-  # obs
-  obs = str(tabela.loc[linha, "obs"])
-  if obs != "nan":
-    pyautogui.write(obs)
-  pyautogui.press("tab") # passar para o botão enviar
-
+  pyautogui.write(senha)
+  pyautogui.press("tab") # passar para o botão
   pyautogui.press("enter")
+  time.sleep(3)
 
-  # voltar para o inicio da tela
-  pyautogui.scroll(5000)
+# Função 3 : Carregar dados
+def carregar_dados():
+   return pd.read_csv(csv_path)
+
+# Função 4: Cadastrar UM Produto
+def cadastrar_produto(produto):
+    pyautogui.click(x=628, y=348)
+
+    pyautogui.write(str(produto["codigo"]))
+    pyautogui.press("tab")
+
+    pyautogui.write(str(produto["marca"]))
+    pyautogui.press("tab")
+
+    pyautogui.write(str(produto["tipo"]))
+    pyautogui.press("tab")
+
+    pyautogui.write(str(produto["categoria"]))
+    pyautogui.press("tab")
+
+    pyautogui.write(str(produto["preco_unitario"]))
+    pyautogui.press("tab")
+
+    pyautogui.write(str(produto["custo"]))
+    pyautogui.press("tab")
+
+    obs = str(produto["obs"])
+    if obs.lower() != "nan":
+        pyautogui.write(obs)
+
+    pyautogui.press("tab")
+    pyautogui.press("enter")
+    pyautogui.scroll(5000)
+
+def main():
+    abrir_sistema()
+    fazer_login()
+    tabela = carregar_dados()
+
+    for _, produto in tabela.iterrows():
+        cadastrar_produto(produto)
+
+if __name__ == "__main__":
+    main()
