@@ -4,10 +4,10 @@ import pandas as pd
 
 pyautogui.PAUSE = 0.5
 
-link = "https://dlp.hashtagtreinamentos.com/python/intensivao/login"
-email = "seu_email@gmail.com"
-senha = "sua_senha"
-csv_path = "produtos.csv"
+URL = "https://dlp.hashtagtreinamentos.com/python/intensivao/login"
+EMAIL = "seu_email@gmail.com"
+SENHA = "sua_senha"
+CSV_PATH = "produtos.csv"
 
 # Função 1: Abrir o navegador e acessar o Sistema
 def abrir_sistema():
@@ -16,50 +16,45 @@ def abrir_sistema():
     pyautogui.press("enter")
     time.sleep(2)
 
-    pyautogui.write(link)
+    pyautogui.write(URL)
     pyautogui.press("enter")
     time.sleep(5)
 
 # Função 2 : Fazer Login no Sistema
 def fazer_login():
-  pyautogui.click(x=701, y=494) # clicar no campo de email 
-  pyautogui.write(email)
-  pyautogui.press("tab") # passar para o próximo campo
+  pyautogui.click(x=701, y=494)
+  pyautogui.write(EMAIL)
+  pyautogui.press("tab")
 
-  pyautogui.write(senha)
-  pyautogui.press("tab") # passar para o botão
+  pyautogui.write(SENHA)
+  pyautogui.press("tab")
   pyautogui.press("enter")
   time.sleep(3)
 
 # Função 3 : Carregar dados
 def carregar_dados():
-   return pd.read_csv(csv_path)
+   return pd.read_csv(CSV_PATH)
 
 # Função 4: Cadastrar UM Produto
 def cadastrar_produto(produto):
     pyautogui.click(x=628, y=348)
+    
+    campos =  [
+        "codigo",
+        "marca",
+        "tipo",
+        "categoria",
+        "preco_unitario",
+        "custo",
+    ]
 
-    pyautogui.write(str(produto["codigo"]))
-    pyautogui.press("tab")
+    for campo in campos:
+        pyautogui.write(str(produto[campo]))
+        pyautogui.press("tab")
 
-    pyautogui.write(str(produto["marca"]))
-    pyautogui.press("tab")
-
-    pyautogui.write(str(produto["tipo"]))
-    pyautogui.press("tab")
-
-    pyautogui.write(str(produto["categoria"]))
-    pyautogui.press("tab")
-
-    pyautogui.write(str(produto["preco_unitario"]))
-    pyautogui.press("tab")
-
-    pyautogui.write(str(produto["custo"]))
-    pyautogui.press("tab")
-
-    obs = str(produto["obs"])
-    if obs.lower() != "nan":
-        pyautogui.write(obs)
+    obs = produto.get("obs")
+    if pd.notna(obs):
+        pyautogui.write(str(obs))
 
     pyautogui.press("tab")
     pyautogui.press("enter")
@@ -68,10 +63,19 @@ def cadastrar_produto(produto):
 def main():
     abrir_sistema()
     fazer_login()
+
     tabela = carregar_dados()
 
-    for _, produto in tabela.iterrows():
-        cadastrar_produto(produto)
+    if tabela.empty:
+        print("Arquivo CSV está vazio.")
+        return
+    
+    for i, produto in tabela.iterrows():
+        try:
+            cadastrar_produto(produto)
+            print(f"[OK] Produto {i + 1} cadastrado")
+        except Exception as e:
+            print(f"[ERRO] Produto {i + 1}: {e}")
 
 if __name__ == "__main__":
     main()
